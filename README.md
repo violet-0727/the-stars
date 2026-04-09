@@ -1,17 +1,17 @@
-# 星途剧情编辑器 (TheStars Story Editor)
+# 星塔剧情编辑器 (TheStars Story Editor)
 
 [![Electron](https://img.shields.io/badge/Electron-36.9.5-blue.svg)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-61dafb.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0.0-646cff.svg)](https://vitejs.dev/)
 
-**星途剧情编辑器** 是一款专为二次元风格视觉小说（Visual Novel）设计的剧情制作工具。它模仿了类似《崩坏：星穹铁道》等现代二次元游戏的手机信笺/聊天交互界面，旨在为创作者提供直观、高效的剧情编写体验。
+**星塔剧情编辑器** 是一款专为二次元风格视觉小说（Visual Novel）设计的剧情制作工具。它还原了《星塔旅人》的聊天交互界面，旨在为创作者提供直观、高效的剧情编写体验。
 
 ---
 
 ## ✨ 核心特性
 
-- 📱 **沉浸式 UI 设计**：深度还原二次元游戏风格的暗色科幻主题界面。
+- 📱 **沉浸式 UI 设计**：深度还原《星塔旅人》游戏界面。
 - 🎭 **多维度剧情编辑**：
   - **对话管理**：支持多角色同时编辑，轻松切换发件人。
   - **消息类型**：支持普通对话、系统旁白、选项分支（多分支切换）、延迟显示、图片插入。
