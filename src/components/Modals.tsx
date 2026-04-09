@@ -1,0 +1,149 @@
+import React, { useState } from 'react';
+
+const AVATARS_PATH = '/avatars/';
+const AVAILABLE_AVATARS = [
+  '苍兰', '尘沙', '赤霞', '冬香', '多娜', '翡冷翠', '风影', '格芮',
+  '琥珀', '花原', '焦糖', '璟麟', '卡娜丝', '卡西米拉', '珂赛特',
+  '科洛妮丝', '菈露', '岭川', '密涅瓦', '千都世', '师渺', '特丽莎',
+  '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿'
+];
+
+export default function Modals({ projectData, setProjectData, addContactModal, setAddContactModal, systemMsgModal, setSystemMsgModal, choiceModal, setChoiceModal, activeContactId, setActiveContactId, setCurrentTab }: any) {
+  
+  // Add Contact State
+  const [contactName, setContactName] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  // System Msg State
+  const [sysMsg, setSysMsg] = useState('');
+
+  // Choice Msg State
+  const [choiceTitle, setChoiceTitle] = useState('');
+  const [choiceOptions, setChoiceOptions] = useState<string[]>(['', '']);
+
+  let contactIdCounter = projectData.contacts.length;
+
+  const handleAddContact = () => {
+    if (!selectedAvatar) return;
+    const name = contactName.trim() || selectedAvatar;
+    const id = 'contact_' + (++contactIdCounter);
+    
+    const newContact = {
+      id, name,
+      avatar: AVATARS_PATH + selectedAvatar + '.png',
+      avatarName: selectedAvatar,
+      type: 'message',
+      pinned: false,
+      status: 'online'
+    };
+
+    const newProjectData = { ...projectData };
+    newProjectData.contacts.push(newContact);
+    if (!newProjectData.chats[id]) newProjectData.chats[id] = [];
+    
+    setProjectData(newProjectData);
+    setAddContactModal(false);
+    setActiveContactId(id);
+    setCurrentTab('messages');
+    setContactName('');
+    setSelectedAvatar(null);
+  };
+
+  const handleAddSystemMsg = () => {
+    if (!sysMsg.trim() || !activeContactId) return;
+    const newProjectData = { ...projectData };
+    newProjectData.chats[activeContactId].push({ type: 'system', content: sysMsg.trim() });
+    setProjectData(newProjectData);
+    setSystemMsgModal(false);
+    setSysMsg('');
+  };
+
+  const handleAddChoice = () => {
+    const validOptions = choiceOptions.filter(o => o.trim());
+    if (validOptions.length < 2 || !activeContactId) return;
+    const newProjectData = { ...projectData };
+    newProjectData.chats[activeContactId].push({ type: 'choice', title: choiceTitle.trim() || '请选择', options: validOptions });
+    setProjectData(newProjectData);
+    setChoiceModal(false);
+    setChoiceTitle('');
+    setChoiceOptions(['', '']);
+  };
+
+  return (
+    <>
+      <div className={`modal-overlay ${addContactModal ? 'show' : ''}`} onClick={(e) => e.target === e.currentTarget && setAddContactModal(false)}>
+        <div className="modal">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2" width="22" height="22"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            添加角色对话
+          </h3>
+          <div className="modal-field">
+            <label>角色名称</label>
+            <input type="text" placeholder="输入角色名称..." value={contactName} onChange={e => setContactName(e.target.value)} />
+          </div>
+          <div className="modal-field">
+            <label>选择头像</label>
+            <div className="modal-avatar-pick">
+              {AVAILABLE_AVATARS.map(name => (
+                <div key={name} className={`avatar-option ${selectedAvatar === name ? 'selected' : ''}`} onClick={() => setSelectedAvatar(name)}>
+                  <img src={`${AVATARS_PATH}${name}.png`} alt={name} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button className="modal-btn cancel" onClick={() => setAddContactModal(false)}>取消</button>
+            <button className="modal-btn confirm" onClick={handleAddContact}>确认添加</button>
+          </div>
+        </div>
+      </div>
+
+      <div className={`modal-overlay ${systemMsgModal ? 'show' : ''}`} onClick={(e) => e.target === e.currentTarget && setSystemMsgModal(false)}>
+        <div className="modal">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            插入系统消息
+          </h3>
+          <div className="modal-field">
+            <label>消息内容</label>
+            <input type="text" placeholder="例如：第二天清晨..." value={sysMsg} onChange={e => setSysMsg(e.target.value)} />
+          </div>
+          <div className="modal-actions">
+            <button className="modal-btn cancel" onClick={() => setSystemMsgModal(false)}>取消</button>
+            <button className="modal-btn confirm" onClick={handleAddSystemMsg}>插入</button>
+          </div>
+        </div>
+      </div>
+
+      <div className={`modal-overlay ${choiceModal ? 'show' : ''}`} onClick={(e) => e.target === e.currentTarget && setChoiceModal(false)}>
+        <div className="modal">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2" width="22" height="22"><polyline points="9 18 15 12 9 6"/></svg>
+            添加选项分支
+          </h3>
+          <div className="modal-field">
+            <label>提示文本（可选）</label>
+            <input type="text" placeholder="例如：你想怎么回答？" value={choiceTitle} onChange={e => setChoiceTitle(e.target.value)} />
+          </div>
+          <div>
+            {choiceOptions.map((opt, i) => (
+              <div key={i} className="modal-field">
+                <label>选项 {i + 1}</label>
+                <input type="text" className="choice-input" placeholder="输入选项文本..." value={opt} onChange={e => {
+                  const newOpts = [...choiceOptions];
+                  newOpts[i] = e.target.value;
+                  setChoiceOptions(newOpts);
+                }} />
+              </div>
+            ))}
+          </div>
+          <button className="modal-btn cancel" style={{marginBottom:'16px', width:'100%', textAlign:'center', justifyContent:'center', display:'flex'}} onClick={() => setChoiceOptions([...choiceOptions, ''])}>+ 添加选项</button>
+          <div className="modal-actions">
+            <button className="modal-btn cancel" onClick={() => setChoiceModal(false)}>取消</button>
+            <button className="modal-btn confirm" onClick={handleAddChoice}>插入</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
