@@ -8,14 +8,11 @@ const AVAILABLE_AVATARS = [
   '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿'
 ];
 
-export default function Modals({ projectData, setProjectData, addContactModal, setAddContactModal, systemMsgModal, setSystemMsgModal, choiceModal, setChoiceModal, activeContactId, setActiveContactId, setCurrentTab }: any) {
+export default function Modals({ projectData, setProjectData, addContactModal, setAddContactModal, choiceModal, setChoiceModal, activeContactId, setActiveContactId, setCurrentTab }: any) {
   
   // Add Contact State
   const [contactName, setContactName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-
-  // System Msg State
-  const [sysMsg, setSysMsg] = useState('');
 
   // Choice Msg State
   const [choiceTitle, setChoiceTitle] = useState('');
@@ -47,15 +44,6 @@ export default function Modals({ projectData, setProjectData, addContactModal, s
     setCurrentTab('messages');
     setContactName('');
     setSelectedAvatar(null);
-  };
-
-  const handleAddSystemMsg = () => {
-    if (!sysMsg.trim() || !activeContactId) return;
-    const newProjectData = { ...projectData };
-    newProjectData.chats[activeContactId].push({ type: 'system', content: sysMsg.trim() });
-    setProjectData(newProjectData);
-    setSystemMsgModal(false);
-    setSysMsg('');
   };
 
   const handleAddChoice = () => {
@@ -94,23 +82,6 @@ export default function Modals({ projectData, setProjectData, addContactModal, s
           <div className="modal-actions">
             <button className="modal-btn cancel" onClick={() => setAddContactModal(false)}>取消</button>
             <button className="modal-btn confirm" onClick={handleAddContact}>确认添加</button>
-          </div>
-        </div>
-      </div>
-
-      <div className={`modal-overlay ${systemMsgModal ? 'show' : ''}`} onClick={(e) => e.target === e.currentTarget && setSystemMsgModal(false)}>
-        <div className="modal">
-          <h3>
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            插入系统消息
-          </h3>
-          <div className="modal-field">
-            <label>消息内容</label>
-            <input type="text" placeholder="例如：第二天清晨..." value={sysMsg} onChange={e => setSysMsg(e.target.value)} />
-          </div>
-          <div className="modal-actions">
-            <button className="modal-btn cancel" onClick={() => setSystemMsgModal(false)}>取消</button>
-            <button className="modal-btn confirm" onClick={handleAddSystemMsg}>插入</button>
           </div>
         </div>
       </div>

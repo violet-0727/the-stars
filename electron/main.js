@@ -4,6 +4,7 @@ const fs = require('fs');
 const url = require('url');
 
 let mainWindow;
+let forceClose = false;
 
 // Register custom protocol scheme before app is ready
 protocol.registerSchemesAsPrivileged([{
@@ -47,6 +48,15 @@ function createWindow() {
     });
     mainWindow.loadURL('app://./index.html');
   }
+
+  // Intercept close to allow save check
+  mainWindow.on('close', (e) => {
+    if (!forceClose) {
+      e.preventDefault();
+      mainWindow.webContents.send('before-close');
+    }
+  });
+
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
@@ -91,3 +101,29 @@ ipcMain.handle('window-maximize', () => {
   else mainWindow.maximize();
 });
 ipcMain.handle('window-close', () => mainWindow.close());
+
+// Handle confirmed close from renderer
+ipcMain.handle('confirm-close', (event, shouldClose) => {
+  if (shouldClose) {
+    forceClose = true;
+    mainWindow.close();
+  }
+});
+
+// Select directory dialog
+ipcMain.handle('select-directory', async () => {
+  const { filePaths } = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
+  if (filePaths && filePaths.length > 0) {
+    return filePaths[0];
+  }
+  return null;
+});
+
+// Save screenshot to specific path
+ipcMain.handle('save-screenshot', async (event, dirPath, fileName, content) => {
+  const filePath = path.join(dirPath, fileName);
+  fs.writeFileSync(filePath, content, 'utf-8');
+  return filePath;
+});

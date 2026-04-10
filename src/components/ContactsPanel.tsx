@@ -32,8 +32,8 @@ export default function ContactsPanel({ projectData, activeContactId, selectCont
         </div>
 
         <div className="contacts-tabs">
-          <button className={`contacts-tab ${currentTab === 'messages' ? 'active' : ''}`} onClick={() => switchTab('messages')}>消息</button>
-          <button className={`contacts-tab ${currentTab === 'groups' ? 'active' : ''}`} onClick={() => switchTab('groups')}>组群</button>
+          <button className={`contacts-tab ${currentTab === 'groups' ? 'active' : ''}`} onClick={() => switchTab('groups')}>消息</button>
+          <button className={`contacts-tab ${currentTab === 'messages' ? 'active' : ''}`} onClick={() => switchTab('messages')}>邀约</button>
           <button className={`contacts-tab ${currentTab === 'channels' ? 'active' : ''}`} onClick={() => switchTab('channels')}>频道</button>
         </div>
 
