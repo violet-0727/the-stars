@@ -46,6 +46,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "public/icon.png",
       "target": [
         "nsis",
         "portable"
