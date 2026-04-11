@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ProjectData, Contact, AppSettings, defaultSettings } from './types';
+import { ProjectData, Contact, Announcement, AppSettings, defaultSettings } from './types';
 import Toolbar from './components/Toolbar';
 import ContactsPanel from './components/ContactsPanel';
 import ChatPanel from './components/ChatPanel';
@@ -29,6 +29,40 @@ const initialData: ProjectData = {
   contacts: [],
   chats: {}
 };
+
+// Hardcoded announcements - read-only, published by software authors
+const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: 'announce_1',
+    title: '欢迎使用',
+    content: `欢迎大家使用 Heart Link！
+本软件为《星塔旅人》聊天系统主题二创工具，仅用于同人创作与兴趣交流。
+
+📜 使用公约
+
+1. 文明交流，友善互动，尊重游戏原作与角色。
+2. 禁止引战、人身攻击、恶意玩梗及违规内容。
+3. 尊重原创，禁止抄袭、盗用他人二创成果。
+4. 内容遵守平台规范，共同维护良好创作氛围。
+5. 本软件为同人二创，非官方应用，仅供兴趣使用。
+
+愿以心意相连，共创属于我们的星塔故事。`,
+    avatar: '/avatars/琥珀.png',
+    avatarName: '琥珀',
+    pinned: true,
+  },
+  {
+    id: 'announce_2',
+    title: '联系我们',
+    content: `- 邮箱：1343807478@qq.com / 2799902706@qq.com
+- Bilibili：https://space.bilibili.com/699093611?spm_id_from=333.1007.0.0
+
+愿以心意相连，共创属于我们的星塔故事。`,
+    avatar: '/avatars/鸢尾.png',
+    avatarName: '鸢尾',
+    pinned: false,
+  },
+];
 
 export default function App() {
   const [projectData, setProjectData] = useState<ProjectData>(initialData);
@@ -94,7 +128,7 @@ export default function App() {
     const c2 = addContact('希娅', '希娅', { type: 'message' });
     const c3 = addContact('璟麟', '璟麟', { type: 'message' });
     const c4 = addContact('星塔作战组', '卡西米拉', { type: 'group' });
-    const c5 = addContact('公告频道', '密涅瓦', { type: 'channel' });
+    const c5 = addContact('公告频道', '琥珀', { type: 'channel', pinned: true });
 
     // 为消息组设置初始成员
     c4.members = [c1.id, c2.id, c3.id];
@@ -134,7 +168,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'story_project.ssp';
+      a.download = 'heart_link.ssp';
       a.click();
       URL.revokeObjectURL(url);
       setHasUnsavedChanges(false);
@@ -148,8 +182,8 @@ export default function App() {
       if (projectDataRef.current.contacts.length > 0) {
         // Auto-save to localStorage as backup
         try {
-          localStorage.setItem('theStars_autosave', JSON.stringify(projectDataRef.current));
-          localStorage.setItem('theStars_autosave_time', new Date().toISOString());
+          localStorage.setItem('heartLink_autosave', JSON.stringify(projectDataRef.current));
+          localStorage.setItem('heartLink_autosave_time', new Date().toISOString());
           console.log('[AutoSave] 自动保存完成', new Date().toLocaleTimeString());
         } catch (e) {
           console.error('[AutoSave] 保存失败:', e);
@@ -356,6 +390,7 @@ export default function App() {
               deleteModalTrigger={deleteModalTrigger}
               setDeleteModalTrigger={setDeleteModalTrigger}
               showTimestamp={settings.showTimestamp}
+              announcements={ANNOUNCEMENTS}
             />
           </div>
         );
@@ -373,7 +408,7 @@ export default function App() {
       ></div>
       <div className="titlebar">
         <div className="titlebar-title">
-          <span>&#9734;</span> 星途剧情编辑器
+          <span>&#9734;</span> 心链 Heart Link
           {hasUnsavedChanges && <span className="unsaved-dot" title="有未保存的更改">●</span>}
         </div>
         <div className="titlebar-controls">
@@ -408,6 +443,7 @@ export default function App() {
         activeContactId={activeContactId}
         setActiveContactId={setActiveContactId}
         setCurrentTab={setCurrentTab}
+        currentTab={currentTab}
       />
 
       {/* Context Menu */}
@@ -435,6 +471,17 @@ export default function App() {
           ) : (() => {
             const ctxContact = projectData.contacts.find((c: any) => c.id === contextMenu.target.id);
             const isGroupCtx = ctxContact?.type === 'group';
+            const isChannelCtx = ctxContact?.type === 'channel';
+
+            // Channel contacts are read-only, no context menu actions
+            if (isChannelCtx) {
+              return (
+                <div className="ctx-item" style={{ color: 'var(--text-muted)', cursor: 'default', pointerEvents: 'none', fontSize: '12px' }}>
+                  公告频道不可编辑
+                </div>
+              );
+            }
+
             return (
               <>
                 <button className="ctx-item" onClick={() => {
@@ -445,40 +492,34 @@ export default function App() {
                 }}>
                   {ctxContact?.pinned ? '取消置顶' : '置顶'}
                 </button>
-                <button className="ctx-item" onClick={() => {
-                  const c = projectData.contacts.find((c: any) => c.id === contextMenu.target.id);
-                  if (!c) return;
-                  const newName = prompt(isGroupCtx ? '编辑消息组名称:' : '编辑角色名称:', c.name);
-                  if (newName !== null && newName.trim()) {
-                    const newProjectData = { ...projectData };
-                    const target = newProjectData.contacts.find((cc: any) => cc.id === contextMenu.target.id);
-                    if (target) target.name = newName.trim();
-                    setProjectData(newProjectData);
-                  }
-                  setContextMenu(null);
-                }}>{isGroupCtx ? '编辑消息组' : '编辑角色'}</button>
-                {isGroupCtx && (
-                  <>
-                    <div className="ctx-divider"></div>
-                    <button className="ctx-item" onClick={() => {
-                      // 打开该组的聊天并聚焦到设置，通过选中组来触发
-                      setActiveContactId(contextMenu.target.id);
-                      setContextMenu(null);
-                      // 使用延迟让 ChatPanel 先渲染，然后触发 groupSettingsOpen
-                      setTimeout(() => {
-                        // 通过自定义事件通知 ChatPanel 打开消息组设置
-                        window.dispatchEvent(new CustomEvent('openGroupSettings', { detail: { groupId: contextMenu.target.id } }));
-                      }, 100);
-                    }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <line x1="20" y1="8" x2="20" y2="14"/>
-                        <line x1="23" y1="11" x2="17" y2="11"/>
-                      </svg>
-                      管理成员
-                    </button>
-                  </>
+                {isGroupCtx ? (
+                  <button className="ctx-item" onClick={() => {
+                    // Open group settings modal (which includes name editing + member management)
+                    setActiveContactId(contextMenu.target.id);
+                    setContextMenu(null);
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('openGroupSettings', { detail: { groupId: contextMenu.target.id } }));
+                    }, 100);
+                  }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    编辑消息组
+                  </button>
+                ) : (
+                  <button className="ctx-item" onClick={() => {
+                    const c = projectData.contacts.find((c: any) => c.id === contextMenu.target.id);
+                    if (!c) return;
+                    const newName = prompt('编辑角色名称:', c.name);
+                    if (newName !== null && newName.trim()) {
+                      const newProjectData = { ...projectData };
+                      const target = newProjectData.contacts.find((cc: any) => cc.id === contextMenu.target.id);
+                      if (target) target.name = newName.trim();
+                      setProjectData(newProjectData);
+                    }
+                    setContextMenu(null);
+                  }}>编辑角色</button>
                 )}
                 <div className="ctx-divider"></div>
                 <button className="ctx-item danger" onClick={() => {

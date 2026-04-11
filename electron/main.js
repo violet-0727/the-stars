@@ -73,7 +73,7 @@ app.on('activate', () => {
 // IPC handlers for file operations
 ipcMain.handle('save-project', async (event, data) => {
   const { filePath } = await dialog.showSaveDialog(mainWindow, {
-    filters: [{ name: 'Star Story Project', extensions: ['ssp'] }],
+    filters: [{ name: 'Heart Link Project', extensions: ['ssp'] }],
     defaultPath: 'untitled.ssp'
   });
   if (filePath) {
@@ -85,7 +85,7 @@ ipcMain.handle('save-project', async (event, data) => {
 
 ipcMain.handle('load-project', async () => {
   const { filePaths } = await dialog.showOpenDialog(mainWindow, {
-    filters: [{ name: 'Star Story Project', extensions: ['ssp'] }],
+    filters: [{ name: 'Heart Link Project', extensions: ['ssp'] }],
     properties: ['openFile']
   });
   if (filePaths && filePaths.length > 0) {

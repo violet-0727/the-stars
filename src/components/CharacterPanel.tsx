@@ -6,7 +6,10 @@ const AVAILABLE_AVATARS = [
   '苍兰', '尘沙', '赤霞', '冬香', '多娜', '翡冷翠', '风影', '格芮',
   '琥珀', '花原', '焦糖', '璟麟', '卡娜丝', '卡西米拉', '珂赛特',
   '科洛妮丝', '菈露', '岭川', '密涅瓦', '千都世', '师渺', '特丽莎',
-  '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿'
+  '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿',
+  '埃利诺', '奥尔贝德', '贝缇丽', '贝修丽娜', '波西亚', '达尔茜娅',
+  '枫', '红宝石', '花玲', '火垂', '蓝宝石', '蓝锥', '米娜', '珀尔娜',
+  '青叶', '维嘉尔', '星雁', '优叶'
 ];
 
 interface CharacterPanelProps {
@@ -34,9 +37,29 @@ export default function CharacterPanel({ projectData, setProjectData }: Characte
   const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Only show type='message' contacts (groups/channels are not "联系人")
-  const characterContacts = projectData.contacts.filter(c => c.type === 'message');
-  const selectedChar = projectData.contacts.find(c => c.id === selectedCharId) || null;
+  // Show ALL available characters: built-in avatars + custom user-created contacts
+  const existingMessageContacts = projectData.contacts.filter(c => c.type === 'message');
+  const existingAvatarNames = new Set(existingMessageContacts.map(c => c.avatarName || c.name));
+
+  // Build virtual contacts for built-in avatars not yet added to project
+  const virtualContacts: Contact[] = AVAILABLE_AVATARS
+    .filter(name => !existingAvatarNames.has(name))
+    .map(name => ({
+      id: `__virtual__${name}`,
+      name,
+      avatar: `${AVATARS_PATH}${name}.png`,
+      avatarName: name,
+      type: 'message' as const,
+      pinned: false,
+      status: 'offline',
+      isDefault: false,
+    }));
+
+  // All characters: existing contacts first, then virtual (not yet invited)
+  const characterContacts = [...existingMessageContacts, ...virtualContacts];
+  const selectedChar = selectedCharId?.startsWith('__virtual__')
+    ? virtualContacts.find(c => c.id === selectedCharId) || null
+    : projectData.contacts.find(c => c.id === selectedCharId) || null;
 
   const handleSelectChar = (contact: Contact) => {
     setSelectedCharId(contact.id);
@@ -206,7 +229,9 @@ export default function CharacterPanel({ projectData, setProjectData }: Characte
                     </div>
                   )}
                   <div className="character-item-type">
-                    {(projectData.chats[contact.id] || []).length} 条消息
+                    {contact.id.startsWith('__virtual__')
+                      ? '未加入邀约'
+                      : `${(projectData.chats[contact.id] || []).length} 条消息`}
                   </div>
                 </div>
               </div>
@@ -332,6 +357,59 @@ export default function CharacterPanel({ projectData, setProjectData }: Characte
                   disabled={!newAvatarPreview || !newName.trim()}
                 >
                   保存
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : selectedChar && selectedCharId?.startsWith('__virtual__') ? (
+          /* 未加入邀约的内置角色 - 只读预览 */
+          <div className="character-editor-form">
+            <div className="character-editor-header">
+              <div className="editor-header-avatar">
+                <img src={selectedChar.avatar} alt={selectedChar.name} />
+              </div>
+              <div className="editor-header-info">
+                <h3>{selectedChar.name}</h3>
+                <p>内置角色 - 尚未加入邀约</p>
+              </div>
+            </div>
+            <div className="editor-form-body">
+              <div className="modal-field">
+                <label>角色名称</label>
+                <input type="text" value={selectedChar.name} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+              </div>
+              <div className="modal-field">
+                <label>状态</label>
+                <input type="text" value="未加入" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+              </div>
+              <div className="editor-actions">
+                <button
+                  className="modal-btn confirm"
+                  onClick={() => {
+                    const name = selectedChar.name;
+                    const id = 'contact_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                    const newContact: Contact = {
+                      id,
+                      name,
+                      avatar: `${AVATARS_PATH}${name}.png`,
+                      avatarName: name,
+                      type: 'message',
+                      pinned: false,
+                      status: 'online',
+                      isDefault: true,
+                    };
+                    const newProjectData = { ...projectData };
+                    newProjectData.contacts = [...newProjectData.contacts, newContact];
+                    if (!newProjectData.chats[id]) newProjectData.chats[id] = [];
+                    setProjectData(newProjectData);
+                    setSelectedCharId(id);
+                    setEditName(name);
+                    setEditStatus('online');
+                    setEditAliases([]);
+                    setEditAliasInput('');
+                  }}
+                >
+                  加入邀约
                 </button>
               </div>
             </div>

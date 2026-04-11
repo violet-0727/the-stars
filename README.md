@@ -1,11 +1,11 @@
-# 星塔剧情编辑器 (TheStars Story Editor)
+# 心链 (Heart Link)
 
 [![Electron](https://img.shields.io/badge/Electron-36.9.5-blue.svg)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-61dafb.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0.0-646cff.svg)](https://vitejs.dev/)
 
-**星塔剧情编辑器** 是一款专为二次元风格视觉小说（Visual Novel）设计的剧情制作工具。它还原了《星塔旅人》的聊天交互界面，旨在为创作者提供直观、高效的剧情编写体验。
+**心链 (Heart Link)** 是一款《星塔旅人》聊天系统主题二创工具，仅用于同人创作与兴趣交流。它还原了《星塔旅人》的聊天交互界面，旨在为创作者提供直观、高效的剧情编写体验。
 
 ---
 
@@ -17,7 +17,7 @@
   - **消息类型**：支持普通对话、系统旁白、选项分支（多分支切换）、延迟显示、图片插入。
 - 👥 **角色资产库**：内置数十位预设角色头像，支持快速搜索与置顶管理。
 - 💾 **工程化管理**：
-  - 导出/导入自定义 `.ssp` (Star Story Project) 格式工程文件。
+  - 导出/导入自定义 `.ssp` (Heart Link Project) 格式工程文件。
   - 自动处理中文字符路径，确保打包后资源（头像、背景、字体）完美加载。
 - 🖥️ **跨平台打包**：支持一键生成 Windows 安装包 (`NSIS`) 及免安装便携版。
 
@@ -75,6 +75,18 @@ npm run dist
 ├── release/           # 可执行文件产物 (打包后生成)
 └── vite.config.ts     # Vite 构建配置
 ```
+
+---
+
+## 📜 使用公约
+
+1. 文明交流，友善互动，尊重游戏原作与角色。
+2. 禁止引战、人身攻击、恶意玩梗及违规内容。
+3. 尊重原创，禁止抄袭、盗用他人二创成果。
+4. 内容遵守平台规范，共同维护良好创作氛围。
+5. 本软件为同人二创，非官方应用，仅供兴趣使用。
+
+愿以心意相连，共创属于我们的星塔故事。
 
 ---
 

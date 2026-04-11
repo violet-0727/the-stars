@@ -1,10 +1,106 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Contact } from '../types';
+import { Contact, Announcement } from '../types';
 
-export default function ChatPanel({ projectData, setProjectData, activeContactId, setChoiceModal, setContextMenu, setActiveContactId, editModalTrigger, setEditModalTrigger, deleteModalTrigger, setDeleteModalTrigger, showTimestamp = true }: any) {
+// Emoji definitions
+const EMOJIS_PATH = '/emojis/';
+const EMOJI_LIST: { name: string; file: string }[] = [
+  { name: '生气a', file: 'emoji_angry_a.png' },
+  { name: '生气b', file: 'emoji_angry_b.png' },
+  { name: '生气c', file: 'emoji_angry_c.png' },
+  { name: '生气d', file: 'emoji_angry_d.png' },
+  { name: '尴尬a', file: 'emoji_awkward_a.png' },
+  { name: '尴尬b', file: 'emoji_awkward_b.png' },
+  { name: '尴尬c', file: 'emoji_awkward_c.png' },
+  { name: '尴尬d', file: 'emoji_awkward_d.png' },
+  { name: '再见a', file: 'emoji_bye_a.png' },
+  { name: '再见b', file: 'emoji_bye_b.png' },
+  { name: '再见c', file: 'emoji_bye_c.png' },
+  { name: '再见d', file: 'emoji_bye_d.png' },
+  { name: '加油a', file: 'emoji_cheerup_a.png' },
+  { name: '加油b', file: 'emoji_cheerup_b.png' },
+  { name: '加油c', file: 'emoji_cheerup_c.png' },
+  { name: '加油d', file: 'emoji_cheerup_d.png' },
+  { name: '安慰a', file: 'emoji_comfort_a.png' },
+  { name: '安慰b', file: 'emoji_comfort_b.png' },
+  { name: '安慰c', file: 'emoji_comfort_c.png' },
+  { name: '安慰d', file: 'emoji_comfort_d.png' },
+  { name: '暴躁a', file: 'emoji_cranky_a.png' },
+  { name: '暴躁b', file: 'emoji_cranky_b.png' },
+  { name: '暴躁c', file: 'emoji_cranky_c.png' },
+  { name: '暴躁d', file: 'emoji_cranky_d.png' },
+  { name: '哭泣a', file: 'emoji_cry_a.png' },
+  { name: '哭泣b', file: 'emoji_cry_b.png' },
+  { name: '哭泣c', file: 'emoji_cry_c.png' },
+  { name: '哭泣d', file: 'emoji_cry_d.png' },
+  { name: '走神a', file: 'emoji_distract_a.png' },
+  { name: '走神b', file: 'emoji_distract_b.png' },
+  { name: '走神c', file: 'emoji_distract_c.png' },
+  { name: '走神d', file: 'emoji_distract_d.png' },
+  { name: '送花a', file: 'emoji_flower_a.png' },
+  { name: '送花b', file: 'emoji_flower_b.png' },
+  { name: '送花c', file: 'emoji_flower_c.png' },
+  { name: '送花d', file: 'emoji_flower_d.png' },
+  { name: '厉害a', file: 'emoji_great_a.png' },
+  { name: '厉害b', file: 'emoji_great_b.png' },
+  { name: '厉害c', file: 'emoji_great_c.png' },
+  { name: '厉害d', file: 'emoji_great_d.png' },
+  { name: '爱心a', file: 'emoji_heart_a.png' },
+  { name: '爱心b', file: 'emoji_heart_b.png' },
+  { name: '爱心c', file: 'emoji_heart_c.png' },
+  { name: '爱心d', file: 'emoji_heart_d.png' },
+  { name: '开心a', file: 'emoji_joy_a.png' },
+  { name: '开心b', file: 'emoji_joy_b.png' },
+  { name: '开心c', file: 'emoji_joy_c.png' },
+  { name: '开心d', file: 'emoji_joy_d.png' },
+  { name: '不要', file: 'emoji_nope.png' },
+  { name: '纸条', file: 'emoji_paper.png' },
+  { name: '得意a', file: 'emoji_pride_a.png' },
+  { name: '得意b', file: 'emoji_pride_b.png' },
+  { name: '得意c', file: 'emoji_pride_c.png' },
+  { name: '得意d', file: 'emoji_pride_d.png' },
+  { name: '揍你a', file: 'emoji_punch_a.png' },
+  { name: '揍你b', file: 'emoji_punch_b.png' },
+  { name: '揍你c', file: 'emoji_punch_c.png' },
+  { name: '揍你d', file: 'emoji_punch_d.png' },
+  { name: '疑问a', file: 'emoji_question_a.png' },
+  { name: '疑问b', file: 'emoji_question_b.png' },
+  { name: '疑问c', file: 'emoji_question_c.png' },
+  { name: '疑问d', file: 'emoji_question_d.png' },
+  { name: '石头', file: 'emoji_rock.png' },
+  { name: '玫瑰', file: 'emoji_rose.png' },
+  { name: '难过a', file: 'emoji_sad_a.png' },
+  { name: '难过b', file: 'emoji_sad_b.png' },
+  { name: '难过c', file: 'emoji_sad_c.png' },
+  { name: '难过d', file: 'emoji_sad_d.png' },
+  { name: '剪刀', file: 'emoji_scissors.png' },
+  { name: '叹气a', file: 'emoji_sigh_a.png' },
+  { name: '叹气b', file: 'emoji_sigh_b.png' },
+  { name: '叹气c', file: 'emoji_sigh_c.png' },
+  { name: '叹气d', file: 'emoji_sigh_d.png' },
+  { name: '唱歌a', file: 'emoji_sing_a.png' },
+  { name: '唱歌b', file: 'emoji_sing_b.png' },
+  { name: '唱歌c', file: 'emoji_sing_c.png' },
+  { name: '唱歌d', file: 'emoji_sing_d.png' },
+  { name: '偷笑a', file: 'emoji_sneaky_a.png' },
+  { name: '偷笑b', file: 'emoji_sneaky_b.png' },
+  { name: '偷笑c', file: 'emoji_sneaky_c.png' },
+  { name: '偷笑d', file: 'emoji_sneaky_d.png' },
+  { name: '惊讶a', file: 'emoji_surprise_a.png' },
+  { name: '惊讶b', file: 'emoji_surprise_b.png' },
+  { name: '惊讶c', file: 'emoji_surprise_c.png' },
+  { name: '惊讶d', file: 'emoji_surprise_d.png' },
+  { name: '害羞a', file: 'emoji_tete_a.png' },
+  { name: '害羞b', file: 'emoji_tete_b.png' },
+  { name: '害羞c', file: 'emoji_tete_c.png' },
+  { name: '害羞d', file: 'emoji_tete_d.png' },
+];
+
+export default function ChatPanel({ projectData, setProjectData, activeContactId, setChoiceModal, setContextMenu, setActiveContactId, editModalTrigger, setEditModalTrigger, deleteModalTrigger, setDeleteModalTrigger, showTimestamp = true, announcements = [] }: any) {
   const [inputText, setInputText] = useState('');
   const [senderVal, setSenderVal] = useState('self');
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // In-app modals state
   const [editModal, setEditModal] = useState<{ show: boolean; idx: number; content: string }>({ show: false, idx: -1, content: '' });
@@ -12,6 +108,7 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
 
   // Group settings modal
   const [groupSettingsOpen, setGroupSettingsOpen] = useState(false);
+  const groupAvatarInputRef = useRef<HTMLInputElement>(null);
 
   // Listen for triggers from parent (context menu -> open modal)
   useEffect(() => {
@@ -54,6 +151,42 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
     return () => window.removeEventListener('openGroupSettings', handler);
   }, [activeContactId]);
 
+  // Close emoji picker on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+        setEmojiPickerOpen(false);
+      }
+    };
+    if (emojiPickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [emojiPickerOpen]);
+
+  const handleSendEmoji = (emoji: { name: string; file: string }) => {
+    const emojiHtml = `<img src="${EMOJIS_PATH}${emoji.file}" alt="${emoji.name}" style="width:100px; height:100px; vertical-align:middle;" />`;
+    const now = new Date();
+    const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    const msg: any = { type: 'message', content: emojiHtml, time };
+
+    if (senderVal === 'self') {
+      msg.sender = 'self';
+    } else {
+      const c = projectData.contacts.find((c: any) => c.id === senderVal);
+      if (c) {
+        msg.sender = c.id;
+        msg.senderName = c.name;
+        msg.avatar = c.avatar;
+      }
+    }
+
+    const newProjectData = { ...projectData };
+    newProjectData.chats[activeContactId].push(msg);
+    setProjectData(newProjectData);
+    setEmojiPickerOpen(false);
+  };
+
   // Double-click sender toggle (only for non-group contacts)
   const handleSenderDoubleClick = useCallback(() => {
     if (!activeContactId) return;
@@ -77,6 +210,69 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
   const contact: Contact | undefined = projectData.contacts.find((c: any) => c.id === activeContactId);
   const messages = projectData.chats[activeContactId] || [];
   const isGroup = contact?.type === 'group';
+  const isChannel = contact?.type === 'channel';
+
+  // Channel: render read-only announcement cards
+  if (isChannel) {
+    const sortedAnnouncements = [...(announcements as Announcement[])].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+    return (
+      <div className="chat-panel" id="chatPanel">
+        <div className="chat-header" id="chatHeader">
+          <div className="chat-header-left">
+            <div className="chat-header-avatar" id="chatHeaderAvatar">
+              <img src={contact?.avatar} alt="" />
+            </div>
+            <div className="chat-header-info">
+              <h3 id="chatHeaderName">{contact?.name}</h3>
+              <p id="chatHeaderStatus">{sortedAnnouncements.length} 条公告</p>
+            </div>
+          </div>
+        </div>
+        <div className="announcement-list">
+          {sortedAnnouncements.map((ann: Announcement) => (
+            <div key={ann.id} className={`announcement-card ${ann.pinned ? 'pinned' : ''}`}>
+              {ann.pinned && (
+                <div className="announcement-pin-badge">
+                  <img src="/icons/icon_phone_pinned.png" alt="pinned" />
+                  <span>置顶</span>
+                </div>
+              )}
+              <div className="announcement-header">
+                <div className="announcement-avatar">
+                  <img src={ann.avatar} alt={ann.avatarName} />
+                </div>
+                <div className="announcement-meta">
+                  <span className="announcement-author">{ann.avatarName}</span>
+                  <span className="announcement-title">{ann.title}</span>
+                </div>
+              </div>
+              <div className="announcement-content">
+                {ann.content.split('\n').map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line.startsWith('http') ? (
+                      <a href={line} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-teal)', wordBreak: 'break-all' }}>{line}</a>
+                    ) : line.includes('https://') ? (
+                      // Handle lines containing URLs mixed with text
+                      <span>{line.split(/(https?:\/\/[^\s]+)/).map((part, j) =>
+                        part.match(/^https?:\/\//) ? (
+                          <a key={j} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-teal)', wordBreak: 'break-all' }}>{part}</a>
+                        ) : (
+                          <span key={j}>{part}</span>
+                        )
+                      )}</span>
+                    ) : (
+                      <span>{line}</span>
+                    )}
+                    {i < ann.content.split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Build sender options based on type
   const buildSenderOptions = () => {
@@ -99,22 +295,69 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
   const senderOptions = buildSenderOptions();
 
   // ===== Group member management =====
+  const AVAILABLE_AVATARS = [
+    '苍兰', '尘沙', '赤霞', '冬香', '多娜', '翡冷翠', '风影', '格芮',
+    '琥珀', '花原', '焦糖', '璟麟', '卡娜丝', '卡西米拉', '珂赛特',
+    '科洛妮丝', '菈露', '岭川', '密涅瓦', '千都世', '师渺', '特丽莎',
+    '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿',
+    '埃利诺', '奥尔贝德', '贝缇丽', '贝修丽娜', '波西亚', '达尔茜娅',
+    '枫', '红宝石', '花玲', '火垂', '蓝宝石', '蓝锥', '米娜', '珀尔娜',
+    '青叶', '维嘉尔', '星雁', '优叶'
+  ];
+  const AVATARS_PATH = '/avatars/';
+
   const allMessageContacts = projectData.contacts.filter((c: any) => c.type === 'message');
   const groupMembers = isGroup && contact?.members
     ? contact.members.map((id: string) => projectData.contacts.find((c: any) => c.id === id)).filter(Boolean) as Contact[]
     : [];
-  const availableToAdd = allMessageContacts.filter((c: any) =>
+
+  // Build full character list: existing contacts + virtual entries for built-in avatars not yet in contacts
+  const existingAvatarNames = new Set(allMessageContacts.map((c: any) => c.avatarName || c.name));
+  const allCharacters: Contact[] = [
+    ...allMessageContacts,
+    ...AVAILABLE_AVATARS
+      .filter(name => !existingAvatarNames.has(name))
+      .map(name => ({
+        id: `__virtual__${name}`,
+        name,
+        avatar: `${AVATARS_PATH}${name}.png`,
+        avatarName: name,
+        type: 'message' as const,
+        pinned: false,
+      }))
+  ];
+  const availableToAdd = allCharacters.filter((c: any) =>
     !contact?.members?.includes(c.id)
   );
 
   const handleAddMemberToGroup = (memberId: string) => {
     if (!contact || !isGroup) return;
     const newProjectData = { ...projectData };
+
+    // If it's a virtual character, auto-create the contact first
+    let actualId = memberId;
+    if (memberId.startsWith('__virtual__')) {
+      const name = memberId.replace('__virtual__', '');
+      actualId = 'contact_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      const newContact: Contact = {
+        id: actualId,
+        name,
+        avatar: `${AVATARS_PATH}${name}.png`,
+        avatarName: name,
+        type: 'message',
+        pinned: false,
+        status: 'online',
+        isDefault: true,
+      };
+      newProjectData.contacts = [...newProjectData.contacts, newContact];
+      if (!newProjectData.chats[actualId]) newProjectData.chats[actualId] = [];
+    }
+
     const group = newProjectData.contacts.find((c: any) => c.id === activeContactId);
     if (!group) return;
     if (!group.members) group.members = [];
-    if (!group.members.includes(memberId)) {
-      group.members.push(memberId);
+    if (!group.members.includes(actualId)) {
+      group.members.push(actualId);
       setProjectData(newProjectData);
     }
   };
@@ -228,8 +471,6 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
     setSystemMsgModal(false);
     setSystemMsgText('');
   };
-
-  const groupAvatarInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="chat-panel" id="chatPanel">
@@ -347,6 +588,28 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
           }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </button>
+          <div style={{ position: 'relative' }} ref={emojiPickerRef}>
+            <button className="input-tool-btn" title="表情" onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+            {emojiPickerOpen && (
+              <div className="emoji-picker">
+                <div className="emoji-picker-header">选择表情</div>
+                <div className="emoji-picker-grid">
+                  {EMOJI_LIST.map((emoji) => (
+                    <div
+                      key={emoji.file}
+                      className="emoji-picker-item"
+                      title={emoji.name}
+                      onClick={() => handleSendEmoji(emoji)}
+                    >
+                      <img src={`${EMOJIS_PATH}${emoji.file}`} alt={emoji.name} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="chat-input-row">
           <div className="chat-input-wrap">
@@ -517,7 +780,7 @@ export default function ChatPanel({ projectData, setProjectData, activeContactId
             <label>添加成员</label>
             <div className="group-add-members">
               {availableToAdd.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: '12px', padding: '8px 0' }}>所有联系人均已加入该消息组</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', padding: '8px 0' }}>所有角色均已加入该消息组</p>
               ) : (
                 availableToAdd.map((c: Contact) => (
                   <div

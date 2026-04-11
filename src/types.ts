@@ -23,6 +23,15 @@ export interface ChatMessage {
   options?: string[];
 }
 
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  avatar: string;
+  avatarName: string;
+  pinned: boolean;
+}
+
 export interface ProjectData {
   contacts: Contact[];
   chats: Record<string, ChatMessage[]>;

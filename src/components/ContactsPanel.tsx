@@ -42,7 +42,8 @@ export default function ContactsPanel({ projectData, activeContactId, selectCont
             const chat = projectData.chats[c.id] || [];
             const msgs = chat.filter((m: any) => m.type === 'message');
             const lastMsg = msgs[msgs.length - 1];
-            const preview = lastMsg ? lastMsg.content : '暂无消息';
+            const isEmojiMsg = lastMsg?.content && /^<img\s+src="\/emojis\//.test(lastMsg.content);
+            const preview = lastMsg ? (isEmojiMsg ? '【表情】' : lastMsg.content) : '暂无消息';
             const time = lastMsg ? lastMsg.time : '';
             const isActive = c.id === activeContactId;
 
@@ -73,10 +74,12 @@ export default function ContactsPanel({ projectData, activeContactId, selectCont
           })}
         </div>
 
-        <button className="contacts-add-btn" onClick={showAddContactModal}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          添加角色对话
-        </button>
+        {currentTab !== 'channels' && (
+          <button className="contacts-add-btn" onClick={showAddContactModal}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            {currentTab === 'groups' ? '添加消息组' : '添加角色对话'}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -5,10 +5,13 @@ const AVAILABLE_AVATARS = [
   '苍兰', '尘沙', '赤霞', '冬香', '多娜', '翡冷翠', '风影', '格芮',
   '琥珀', '花原', '焦糖', '璟麟', '卡娜丝', '卡西米拉', '珂赛特',
   '科洛妮丝', '菈露', '岭川', '密涅瓦', '千都世', '师渺', '特丽莎',
-  '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿'
+  '缇莉娅', '雾语', '希娅', '夏花', '小禾', '杏子', '鸢尾', '紫槿',
+  '埃利诺', '奥尔贝德', '贝缇丽', '贝修丽娜', '波西亚', '达尔茜娅',
+  '枫', '红宝石', '花玲', '火垂', '蓝宝石', '蓝锥', '米娜', '珀尔娜',
+  '青叶', '维嘉尔', '星雁', '优叶'
 ];
 
-export default function Modals({ projectData, setProjectData, addContactModal, setAddContactModal, choiceModal, setChoiceModal, activeContactId, setActiveContactId, setCurrentTab }: any) {
+export default function Modals({ projectData, setProjectData, addContactModal, setAddContactModal, choiceModal, setChoiceModal, activeContactId, setActiveContactId, setCurrentTab, currentTab }: any) {
   
   // Add Contact State
   const [contactName, setContactName] = useState('');
@@ -23,25 +26,51 @@ export default function Modals({ projectData, setProjectData, addContactModal, s
   const handleAddContact = () => {
     if (!selectedAvatar) return;
     const name = contactName.trim() || selectedAvatar;
-    const id = 'contact_' + (++contactIdCounter);
-    
-    const newContact = {
-      id, name,
-      avatar: AVATARS_PATH + selectedAvatar + '.png',
-      avatarName: selectedAvatar,
-      type: 'message',
-      pinned: false,
-      status: 'online'
-    };
+    const isGroupMode = currentTab === 'groups';
 
-    const newProjectData = { ...projectData };
-    newProjectData.contacts.push(newContact);
-    if (!newProjectData.chats[id]) newProjectData.chats[id] = [];
-    
-    setProjectData(newProjectData);
-    setAddContactModal(false);
-    setActiveContactId(id);
-    setCurrentTab('messages');
+    if (isGroupMode) {
+      // Create a new group
+      const groupId = 'contact_' + (++contactIdCounter);
+      const newGroup = {
+        id: groupId,
+        name: name,
+        avatar: AVATARS_PATH + selectedAvatar + '.png',
+        avatarName: selectedAvatar,
+        type: 'group',
+        pinned: false,
+        status: 'online',
+        members: [] as string[],
+      };
+
+      const newProjectData = { ...projectData };
+      newProjectData.contacts.push(newGroup);
+      if (!newProjectData.chats[groupId]) newProjectData.chats[groupId] = [];
+
+      setProjectData(newProjectData);
+      setAddContactModal(false);
+      setActiveContactId(groupId);
+      setCurrentTab('groups');
+    } else {
+      // Create a regular message contact
+      const id = 'contact_' + (++contactIdCounter);
+      const newContact = {
+        id, name,
+        avatar: AVATARS_PATH + selectedAvatar + '.png',
+        avatarName: selectedAvatar,
+        type: 'message',
+        pinned: false,
+        status: 'online'
+      };
+
+      const newProjectData = { ...projectData };
+      newProjectData.contacts.push(newContact);
+      if (!newProjectData.chats[id]) newProjectData.chats[id] = [];
+
+      setProjectData(newProjectData);
+      setAddContactModal(false);
+      setActiveContactId(id);
+      setCurrentTab('messages');
+    }
     setContactName('');
     setSelectedAvatar(null);
   };
@@ -63,14 +92,14 @@ export default function Modals({ projectData, setProjectData, addContactModal, s
         <div className="modal">
           <h3>
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2" width="22" height="22"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-            添加角色对话
+            {currentTab === 'groups' ? '添加消息组' : '添加角色对话'}
           </h3>
           <div className="modal-field">
-            <label>角色名称</label>
-            <input type="text" placeholder="输入角色名称..." value={contactName} onChange={e => setContactName(e.target.value)} />
+            <label>{currentTab === 'groups' ? '消息组名称' : '角色名称'}</label>
+            <input type="text" placeholder={currentTab === 'groups' ? '输入消息组名称...' : '输入角色名称...'} value={contactName} onChange={e => setContactName(e.target.value)} />
           </div>
           <div className="modal-field">
-            <label>选择头像</label>
+            <label>{currentTab === 'groups' ? '选择消息组头像' : '选择头像'}</label>
             <div className="modal-avatar-pick">
               {AVAILABLE_AVATARS.map(name => (
                 <div key={name} className={`avatar-option ${selectedAvatar === name ? 'selected' : ''}`} onClick={() => setSelectedAvatar(name)}>

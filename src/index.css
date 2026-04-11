@@ -1905,6 +1905,199 @@
       background: rgba(62, 205, 198, 0.08);
     }
 
+    /* ===== 公告频道 ===== */
+    .announcement-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .announcement-list::-webkit-scrollbar { width: 4px; }
+    .announcement-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+    }
+
+    .announcement-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .announcement-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .announcement-card.pinned {
+      border-color: rgba(62, 205, 198, 0.25);
+      background: rgba(62, 205, 198, 0.04);
+    }
+    .announcement-card.pinned:hover {
+      background: rgba(62, 205, 198, 0.07);
+      border-color: rgba(62, 205, 198, 0.35);
+    }
+
+    .announcement-pin-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: var(--accent-teal);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .announcement-pin-badge img {
+      width: 14px;
+      height: 14px;
+      opacity: 0.9;
+    }
+
+    .announcement-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .announcement-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    .announcement-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .announcement-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .announcement-author {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .announcement-title {
+      font-size: 12px;
+      color: var(--accent-teal);
+      font-weight: 500;
+    }
+
+    .announcement-content {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      padding-left: 54px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    /* Light theme adjustments */
+    .theme-light .announcement-card {
+      background: rgba(0, 0, 0, 0.02);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    .theme-light .announcement-card:hover {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+    .theme-light .announcement-card.pinned {
+      border-color: rgba(62, 205, 198, 0.3);
+      background: rgba(62, 205, 198, 0.04);
+    }
+    .theme-light .announcement-avatar {
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== 表情选择器 ===== */
+    .emoji-picker {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      margin-bottom: 8px;
+      width: 360px;
+      max-height: 340px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInUp 0.15s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .emoji-picker-header {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-shrink: 0;
+    }
+    .emoji-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      padding: 10px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .emoji-picker-grid::-webkit-scrollbar { width: 4px; }
+    .emoji-picker-grid::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+    }
+    .emoji-picker-item {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      padding: 4px;
+    }
+    .emoji-picker-item:hover {
+      background: rgba(62, 205, 198, 0.12);
+      transform: scale(1.1);
+    }
+    .emoji-picker-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Light theme */
+    .theme-light .emoji-picker {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+    .theme-light .emoji-picker-header {
+      border-bottom-color: rgba(0, 0, 0, 0.06);
+    }
+    .theme-light .emoji-picker-item:hover {
+      background: rgba(62, 205, 198, 0.1);
+    }
+
     /* ===== 响应式 ===== */
     @media (max-width: 900px) {
       .contacts-panel { width: 280px; min-width: 280px; }

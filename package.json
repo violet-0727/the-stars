@@ -1,7 +1,7 @@
 {
-  "name": "thestars-story-editor",
+  "name": "heart-link",
   "version": "1.0.0",
-  "description": "星塔旅人风格剧情制作工具",
+  "description": "Heart Link - 星塔旅人聊天系统主题二创工具",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
@@ -35,8 +35,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.thestars.storyeditor",
-    "productName": "TheStars Story Editor",
+    "appId": "com.heartlink.app",
+    "productName": "Heart Link",
     "directories": {
       "output": "release"
     },

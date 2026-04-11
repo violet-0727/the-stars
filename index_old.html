@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>星途剧情编辑器 - TheStars Story Editor</title>
+  <title>心链 - Heart Link</title>
   <style>
     /* ===== 全局重置与字体 ===== */
     @font-face {
@@ -903,7 +903,7 @@
 <!-- 标题栏 -->
 <div class="titlebar">
   <div class="titlebar-title">
-    <span>&#9734;</span> 星途剧情编辑器
+    <span>&#9734;</span> 心链 Heart Link
   </div>
   <div class="titlebar-controls">
     <button class="titlebar-btn" onclick="windowAction('minimize')">
@@ -923,7 +923,7 @@
 
   <!-- 左侧工具栏 -->
   <div class="toolbar">
-    <div class="toolbar-logo" title="星途">
+    <div class="toolbar-logo" title="心链">
       <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
     </div>
     <div class="toolbar-divider"></div>
@@ -1685,7 +1685,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'story_project.ssp';
+      a.download = 'heart_link.ssp';
       a.click();
       URL.revokeObjectURL(url);
     }
